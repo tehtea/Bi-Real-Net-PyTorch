@@ -27,7 +27,7 @@ Other command line arguments can be found by running `python3 main_train.py --he
 - Python 3.5.2
 - PyTorch 1.0.0 (needed to get ONNX model with IR Version 3 and Opset Version 9, needed by ONNX2daBNN converter)
 
-# Referneces
+# References
 - Loading LMDB dataset: https://github.com/rmccorm4/PyTorch-LMDB
 - Original Bi-Real-Net implementation: https://github.com/liuzechun/Bi-Real-net
 - Binary training: https://github.com/jiecaoyu/XNOR-Net-PyTorch
