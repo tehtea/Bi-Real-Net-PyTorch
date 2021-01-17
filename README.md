@@ -30,5 +30,6 @@ Other command line arguments can be found by running `python3 main_train.py --he
 # References
 - Loading LMDB dataset: https://github.com/rmccorm4/PyTorch-LMDB
 - Original Bi-Real-Net implementation: https://github.com/liuzechun/Bi-Real-net
-- Binary training: https://github.com/jiecaoyu/XNOR-Net-PyTorch
+- Binary Network training in PyTorch: https://github.com/jiecaoyu/XNOR-Net-PyTorch
 - daBNN Conv2d implementation in PyTorch: https://gist.github.com/daquexian/7db1e7f1e0a92ab13ac1ad028233a9eb
+- Network model visualization and debugging: https://netron.app/
