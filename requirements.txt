@@ -1,6 +1,6 @@
 six==1.15.0
-pyarrow==2.0.0
-lmdb==0.86
+pyarrow==0.17.1
+lmdb==1.0.0
 Pillow==5.2.0
 -i https://download.pytorch.org/whl/cu90/torch_stable.html # change the link if you are using a CUDA version other than 9.0
 torch==1.0.0
