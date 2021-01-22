@@ -10,7 +10,7 @@ def export_model_to_onnx(model, bin_op, output_model_name):
     bin_op.binarization()
     torch.save(model.state_dict(), 'temp.pth')
     temp_model = Net()
-    temp_model.load_state_dict(torch.load('temp.pth'))
+    temp_model.load_state_dict(torch.load('temp.pth', map_location='cpu'))
     temp_model.eval()
 
     # Export the model
