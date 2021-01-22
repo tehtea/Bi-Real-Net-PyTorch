@@ -86,11 +86,14 @@ logging.warning('Number of GPUs found: {}'.format(torch.cuda.device_count()))
 if torch.cuda.is_available() and torch.cuda.device_count() > 1:
   logging.warning('Found multiple GPUs, running training on all in parallel')
   model = torch.nn.DataParallel(model).cuda()
-# for m in model.modules():
-#   print(m)
-#   for parameter in m.parameters():
-#     print(parameter.is_cuda)
-#     break
+
+logging.debug('Check if parameters in model are in cuda')
+if torch.cuda.is_available():
+  for name, module in model.named_modules():
+    for parameter in module.parameters():
+      if not parameter.is_cuda:
+        logging.error('{} has parameters not in CUDA'.format(name))
+      break
 
 # initialize the model weights
 for m in model.modules():
