@@ -85,8 +85,8 @@ model = Net().to(device)
 logging.warning('Number of GPUs found: {}'.format(torch.cuda.device_count()))
 if torch.cuda.is_available() and torch.cuda.device_count() > 1:
   logging.warning('Found multiple GPUs, running training on all in parallel')
-  model = torch.nn.DataParallel(model)
-  
+  model = torch.nn.DataParallel(model).cuda()
+
 # initialize the model weights
 for m in model.modules():
   if isinstance(m, BinaryConv2dKernel):
