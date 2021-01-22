@@ -18,8 +18,7 @@ class BinaryConv2dKernel(nn.Conv2d):
         # out = F.conv2d(input, self.weight, self.bias, self.stride,
         #                 0, self.dilation, self.groups, )
 
-        out = F.conv2d(input, self.weight, self.bias, self.stride,
-                       self.padding, self.dilation, self.groups, )
+        out = super().forward(input)
         return out
 
 
