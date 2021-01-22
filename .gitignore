@@ -4,6 +4,7 @@ __pycache__/
 # project-specific
 checkpoints/*
 *.log
+temp.*
 
 # keep .keep files
 !.keep

@@ -36,7 +36,7 @@ parser.add_argument('--debug', action='store_true', help='Debug mode to minimall
 
 args = parser.parse_args()
 if args.debug:
-  logging.warn('Warning: running in debug mode')
+  logging.info('Running in debug mode')
   args.max_epoch = 1
   args.train_path = args.val_path # make smaller
 best_acc = 0
@@ -82,9 +82,9 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False, n
 
 ## Define and initialize the model
 model = Net().to(device)
-logging.warning('Number of GPUs found: {}'.format(torch.cuda.device_count()))
+logging.info('Number of GPUs found: {}'.format(torch.cuda.device_count()))
 if torch.cuda.is_available() and torch.cuda.device_count() > 1:
-  logging.warning('Found multiple GPUs, running training on all in parallel')
+  logging.info('Found multiple GPUs, running training on all in parallel')
   model = torch.nn.DataParallel(model).cuda()
 
 logging.debug('Check if parameters in model are in cuda')
