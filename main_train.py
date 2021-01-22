@@ -32,10 +32,11 @@ parser.add_argument('--max_epoch', default=50, type=int, help='max number of epo
 parser.add_argument('--batch_size', default=64, type=int, help='batch size used for training')
 parser.add_argument('--num_classes', default=1000, type=int, help='Number of classes in dataset')
 parser.add_argument('--train_log_file', default='train.log', help='Path to log file for training')
-parser.add_argument('--debug', default=True, type=bool, help='Debug mode to minimally ensure program does not crash')
+parser.add_argument('--debug', action='store_true', help='Debug mode to minimally ensure program does not crash')
 
 args = parser.parse_args()
 if args.debug:
+  logging.warn('Warning: running in debug mode')
   args.max_epoch = 1
   args.train_path = args.val_path # make smaller
 best_acc = 0
