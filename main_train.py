@@ -27,12 +27,12 @@ from dataset.image_folder_lmdb import ImageFolderLMDB
 parser = argparse.ArgumentParser(description='Bi-Real-Net 18 Training')
 parser.add_argument('--train_path', required=True, help='Path to the train set .lmdb file')
 parser.add_argument('--val_path', required=True, help='Path to the validation set .lmdb file')
-parser.add_argument('--base_lr', default=0.01, help='base learning rate')
-parser.add_argument('--max_epoch', default=50, help='max number of epochs for training')
-parser.add_argument('--batch_size', default=64, help='batch size used for training')
-parser.add_argument('--num_classes', default=1000, help='Number of classes in dataset')
+parser.add_argument('--base_lr', default=0.01, type=float, help='base learning rate')
+parser.add_argument('--max_epoch', default=50, type=int, help='max number of epochs for training')
+parser.add_argument('--batch_size', default=64, type=int, help='batch size used for training')
+parser.add_argument('--num_classes', default=1000, type=int, help='Number of classes in dataset')
 parser.add_argument('--train_log_file', default='train.log', help='Path to log file for training')
-parser.add_argument('--debug', default=True, help='Debug mode to minimally ensure program does not crash')
+parser.add_argument('--debug', default=True, type=bool, help='Debug mode to minimally ensure program does not crash')
 
 args = parser.parse_args()
 if args.debug:
