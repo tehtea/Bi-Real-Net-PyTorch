@@ -1,0 +1,18 @@
+{
+  "train_path": "../imagenet-stuff/train.lmdb",
+  "val_path": "../imagenet-stuff/val.lmdb",
+  "optimizers": {
+    "sgd": {
+      "base_lr": 0.01,
+      "momentum": 0.9,
+      "weight_decay": 0
+    }
+  },
+  "chosen_optimizer": "sgd",
+  "scheduler_update_list": [10, 15],
+  "max_epoch": 20,
+  "batch_size": 128,
+  "num_classes": 1000,
+  "train_log_file": "train.log",
+  "debug": false
+}

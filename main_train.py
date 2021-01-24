@@ -5,6 +5,7 @@ And from https://gist.github.com/daquexian/7db1e7f1e0a92ab13ac1ad028233a9eb
 """
 import logging
 import argparse
+import os
 
 import torch
 import torch.optim as optim
@@ -18,31 +19,24 @@ from binary_classes import BinaryConv2dKernel, BinOp
 from utils.train_functions import adjust_learning_rate, train, save_for_evaluation
 from utils.test_functions import test
 from utils.export_function import export_model_to_onnx
+from utils.configuration_utils import read_from_config
 from dataset.image_folder_lmdb import ImageFolderLMDB
 
 
 ## Define some parameters
 
 # define training args and best_acc global variable
-parser = argparse.ArgumentParser(description='Bi-Real-Net 18 Training')
-parser.add_argument('--train_path', required=True, help='Path to the train set .lmdb file')
-parser.add_argument('--val_path', required=True, help='Path to the validation set .lmdb file')
-parser.add_argument('--base_lr', default=0.01, type=float, help='base learning rate')
-parser.add_argument('--max_epoch', default=50, type=int, help='max number of epochs for training')
-parser.add_argument('--batch_size', default=64, type=int, help='batch size used for training')
-parser.add_argument('--num_classes', default=1000, type=int, help='Number of classes in dataset')
-parser.add_argument('--train_log_file', default='train.log', help='Path to log file for training')
-parser.add_argument('--debug', action='store_true', help='Debug mode to minimally ensure program does not crash')
+args = read_from_config(os.path.join('config', 'train.json'))
+optimizer_args = args['optimizers'][args['chosen_optimizer']]
 
-args = parser.parse_args()
-if args.debug:
+if args['debug']:
   logging.info('Running in debug mode')
-  args.max_epoch = 1
-  args.train_path = args.val_path # make smaller
+  args['max_epoch'] = 1
+  args['train_path'] = args['val_path'] # make smaller
 best_acc = 0
 
 # define logger
-logging.basicConfig(filename=args.train_log_file, filemode='w', level=logging.INFO)
+logging.basicConfig(filename=args['train_log_file'], filemode='w', level=logging.INFO)
 
 # define device
 device = torch.device('cpu')
@@ -57,26 +51,26 @@ torch.cuda.manual_seed(1)
 ## Initialize the datasets and dataloaders for training and testing"
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
-trainset = ImageFolderLMDB(args.train_path, transform=transforms.Compose([
+trainset = ImageFolderLMDB(args['train_path'], transform=transforms.Compose([
     transforms.RandomResizedCrop(224),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     normalize,
 ]))
-if args.debug:
+if args['debug']:
   trainset = torch.utils.data.Subset(
-      trainset, range(args.batch_size * 5))
+      trainset, range(args['batch_size'] * 5))
 # multi-processing for loading dataset not supported for now
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=0, pin_memory=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=args['batch_size'], shuffle=True, num_workers=0, pin_memory=True)
 
-testset = ImageFolderLMDB(args.val_path, transform=transforms.Compose([
+testset = ImageFolderLMDB(args['val_path'], transform=transforms.Compose([
     transforms.CenterCrop(224),
     transforms.ToTensor(),
     normalize,
 ]))
-if args.debug:
+if args['debug']:
   testset = torch.utils.data.Subset(
-      testset, range(args.batch_size * 5))
+      testset, range(args['batch_size'] * 5))
 # multi-processing for loading dataset not supported for now
 testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False, num_workers=0, pin_memory=True)
 
@@ -103,8 +97,18 @@ for m in model.modules():
       m.bias.data.zero_()
 
 ## Define solver and criterion
-optimizer = optim.Adam(
-    model.parameters(), lr=args.base_lr, weight_decay=0.00001)
+optimizer = None
+if args['chosen_optimizer'] == 'sgd':
+  optimizer = optim.SGD(\
+      model.parameters(),\
+      lr=optimizer_args['base_lr'],\
+      momentum=optimizer_args['momentum'],\
+      weight_decay=optimizer_args['weight_decay'])
+elif args['chosen_optimizer'] == 'adam':
+  optimizer = optim.Adam(
+      model.parameters(), 
+      lr=args['base_lr'], 
+      weight_decay=0.00001)
 criterion = nn.CrossEntropyLoss()
 
 ## Define the binarization operator
@@ -112,11 +116,11 @@ bin_op = BinOp(model)
 
 ## Start training
 best_acc = 0
-for epoch in range(1, args.max_epoch + 1):
-    adjust_learning_rate(optimizer, epoch)
+for epoch in range(1, args['max_epoch'] + 1):
+    adjust_learning_rate(optimizer, epoch, args['scheduler_update_list'])
     train(model, bin_op, trainloader, optimizer,
-          criterion, epoch, args.num_classes)
-    current_acc = test(model, bin_op, testloader, criterion, args.num_classes)
+          criterion, epoch, args['num_classes'])
+    current_acc = test(model, bin_op, testloader, criterion, args['num_classes'])
     if current_acc > best_acc:
         best_acc = current_acc
         torch.save(model, 'checkpoints/best_model_{}.pth'.format(round(best_acc, 1)))
@@ -124,7 +128,7 @@ for epoch in range(1, args.max_epoch + 1):
 ## Stop training
 logging.info('Training Done. Evaluating final model.')
 save_for_evaluation(model, bin_op)
-test(model, bin_op, testloader, criterion, args.num_classes)
+test(model, bin_op, testloader, criterion, args['num_classes'])
 
 logging.info('Now exporting binarized model to ONNX.')
 export_model_to_onnx(model, bin_op, 'birealnet18-custom.onnx')
