@@ -9,8 +9,6 @@ def test(model, bin_op, testloader, criterion, num_classes):
     correct = 0
     bin_op.binarization()
     for data, target in testloader:
-        if torch.cuda.is_available():
-            data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
                                     
         output = model(data)

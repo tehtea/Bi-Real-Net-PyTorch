@@ -4,8 +4,14 @@ Adapted from https://github.com/jiecaoyu/XNOR-Net-PyTorch
 And from https://gist.github.com/daquexian/7db1e7f1e0a92ab13ac1ad028233a9eb
 """
 import logging
-import argparse
 import os
+import sys
+
+# define logger
+logging.basicConfig(level=logging.INFO, handlers=[
+  logging.FileHandler("train.log"),
+  logging.StreamHandler(sys.stderr)
+])
 
 import torch
 import torch.optim as optim
@@ -31,12 +37,8 @@ optimizer_args = args['optimizers'][args['chosen_optimizer']]
 
 if args['debug']:
   logging.info('Running in debug mode')
-  args['max_epoch'] = 1
   args['train_path'] = args['val_path'] # make smaller
 best_acc = 0
-
-# define logger
-logging.basicConfig(filename=args['train_log_file'], filemode='w', level=logging.INFO)
 
 # define device
 device = torch.device('cpu')
@@ -51,28 +53,38 @@ torch.cuda.manual_seed(1)
 ## Initialize the datasets and dataloaders for training and testing"
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
+def bring_tensor_to_device(tensor):
+  return tensor.to(device)
+
+def make_into_tensor_on_device(item):
+  return torch.tensor(item, device=device)
+
 trainset = ImageFolderLMDB(args['train_path'], transform=transforms.Compose([
     transforms.RandomResizedCrop(224),
-    transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
+    bring_tensor_to_device,
     normalize,
-]))
+  ]),
+  target_transform=make_into_tensor_on_device
+)
 if args['debug']:
   trainset = torch.utils.data.Subset(
       trainset, range(args['batch_size'] * 5))
-# multi-processing for loading dataset not supported for now
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=args['batch_size'], shuffle=True, num_workers=0, pin_memory=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=args['batch_size'], shuffle=True, num_workers=0)#, num_workers=4*torch.cuda.device_count())
 
 testset = ImageFolderLMDB(args['val_path'], transform=transforms.Compose([
     transforms.CenterCrop(224),
     transforms.ToTensor(),
+    bring_tensor_to_device,
     normalize,
-]))
+  ]),
+  target_transform=make_into_tensor_on_device
+)
 if args['debug']:
   testset = torch.utils.data.Subset(
       testset, range(args['batch_size'] * 5))
 # multi-processing for loading dataset not supported for now
-testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False, num_workers=0, pin_memory=True)
+testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False, num_workers=0)#num_workers=4*torch.cuda.device_count())
 
 ## Define and initialize the model
 model = Net().to(device)

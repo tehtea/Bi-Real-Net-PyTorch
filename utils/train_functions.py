@@ -13,9 +13,6 @@ def adjust_learning_rate(optimizer, epoch, update_list=[120, 200, 240, 280]):
 def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes):
     model.train()
     for batch_idx, (data, target) in enumerate(trainloader):
-        if torch.cuda.is_available():
-            data = data.cuda()
-            target = target.cuda()
 
         # process the weights including binarization
         bin_op.binarization()
