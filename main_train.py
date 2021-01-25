@@ -19,7 +19,6 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torchvision
 from torchvision import transforms
-from torch.nn.parallel import DistributedDataParallel as DDP
 
 from model import Net
 from binary_classes import BinaryConv2dKernel, BinOp
@@ -92,7 +91,7 @@ model = Net().to(device)
 logging.info('Number of GPUs found: {}'.format(torch.cuda.device_count()))
 if torch.cuda.is_available() and torch.cuda.device_count() > 1:
   logging.info('Found multiple GPUs, running training on all in parallel')
-  model = DDP(model).cuda()
+  model = torch.nn.DataParallel(model).cuda()
 
 logging.debug('Check if parameters in model are in cuda')
 if torch.cuda.is_available():
