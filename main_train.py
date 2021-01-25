@@ -70,7 +70,7 @@ trainset = ImageFolderLMDB(args['train_path'], transform=transforms.Compose([
 if args['debug']:
   trainset = torch.utils.data.Subset(
       trainset, range(args['batch_size'] * 5))
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=args['batch_size'], shuffle=True, num_workers=0)#, num_workers=4*torch.cuda.device_count())
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=args['batch_size'], shuffle=True, num_workers=0)
 
 testset = ImageFolderLMDB(args['val_path'], transform=transforms.Compose([
     transforms.CenterCrop(224),
@@ -84,7 +84,7 @@ if args['debug']:
   testset = torch.utils.data.Subset(
       testset, range(args['batch_size'] * 5))
 # multi-processing for loading dataset not supported for now
-testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False, num_workers=0)#num_workers=4*torch.cuda.device_count())
+testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False, num_workers=0)
 
 ## Define and initialize the model
 model = Net().to(device)
@@ -129,13 +129,13 @@ bin_op = BinOp(model)
 ## Start training
 best_acc = 0
 for epoch in range(1, args['max_epoch'] + 1):
-    adjust_learning_rate(optimizer, epoch, args['scheduler_update_list'])
-    train(model, bin_op, trainloader, optimizer,
-          criterion, epoch, args['num_classes'])
-    current_acc = test(model, bin_op, testloader, criterion, args['num_classes'])
-    if current_acc > best_acc:
-        best_acc = current_acc
-        torch.save(model, 'checkpoints/best_model_{}.pth'.format(round(best_acc, 1)))
+  adjust_learning_rate(optimizer, epoch, args['scheduler_update_list'])
+  train(model, bin_op, trainloader, optimizer,
+        criterion, epoch, args['num_classes'])
+  current_acc = test(model, bin_op, testloader, criterion, args['num_classes'])
+  if current_acc > best_acc:
+    best_acc = current_acc
+    torch.save(model, 'checkpoints/best_model_{}.pth'.format(round(best_acc, 1)))
 
 ## Stop training
 logging.info('Training Done. Evaluating final model.')
