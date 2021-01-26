@@ -38,7 +38,9 @@ class ImageFolderLMDB(data.Dataset):
         buf = six.BytesIO()
         buf.write(imgbuf)
         buf.seek(0)
-        img = Image.open(buf).convert('RGB')
+        img = Image.open(buf)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
 
         # load label
         target = unpacked[1]
