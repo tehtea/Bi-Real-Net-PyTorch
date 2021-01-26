@@ -73,7 +73,7 @@ trainset = ImageFolderLMDB(args['train_path'], transform=transforms.Compose([
 )
 if args['debug']:
   trainset = torch.utils.data.Subset(
-      trainset, range(args['batch_size'] * 5))
+      trainset, range(args['batch_size'] * 50))
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=args['batch_size'], shuffle=True, num_workers=0)
 
 testset = ImageFolderLMDB(args['val_path'], transform=transforms.Compose([
@@ -86,7 +86,7 @@ testset = ImageFolderLMDB(args['val_path'], transform=transforms.Compose([
 )
 if args['debug']:
   testset = torch.utils.data.Subset(
-      testset, range(args['batch_size'] * 5))
+      testset, range(args['batch_size'] * 50))
 # multi-processing for loading dataset not supported for now
 testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False, num_workers=0)
 
@@ -137,7 +137,7 @@ for epoch in range(1, args['max_epoch'] + 1):
   start_time = time.time()
   train(model, bin_op, trainloader, optimizer,
         criterion, epoch, args['num_classes'])
-  logging.info('Time elapsed for epoch: {} min'.format((time.time() - start_time) // 60))
+  logging.info('Time elapsed for epoch: {} min'.format(round((time.time() - start_time) / 60, 2)))
   current_acc = test(model, bin_op, testloader, criterion, args['num_classes'])
   if current_acc > best_acc:
     best_acc = current_acc
