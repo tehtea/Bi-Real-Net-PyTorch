@@ -3,12 +3,16 @@
 Adapted from https://github.com/jiecaoyu/XNOR-Net-PyTorch
 And from https://gist.github.com/daquexian/7db1e7f1e0a92ab13ac1ad028233a9eb
 """
+import time
 import logging
 import os
 import sys
 
 # define logger
-logging.basicConfig(level=logging.INFO, handlers=[
+logging.basicConfig(\
+  level=logging.INFO,\
+  format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
+  handlers=[
   logging.FileHandler("train.log"),
   logging.StreamHandler(sys.stderr)
 ])
@@ -130,8 +134,10 @@ bin_op = BinOp(model)
 best_acc = 0
 for epoch in range(1, args['max_epoch'] + 1):
   adjust_learning_rate(optimizer, epoch, args['scheduler_update_list'])
+  start_time = time.time()
   train(model, bin_op, trainloader, optimizer,
         criterion, epoch, args['num_classes'])
+  logging.info('Time elapsed for epoch: {} min'.format((time.time() - start_time) // 60))
   current_acc = test(model, bin_op, testloader, criterion, args['num_classes'])
   if current_acc > best_acc:
     best_acc = current_acc
