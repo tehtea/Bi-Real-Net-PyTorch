@@ -14,7 +14,7 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes):
     model.train()
 
     # queue for placing pre-processed training samples in background
-    _train_samples_queue = queue.Queue(maxsize=torch.cuda.device_count() * 4)
+    _train_samples_queue = queue.Queue(maxsize=max(torch.cuda.device_count() * 4, 4))
 
     # function to be run by the preprocessing daemon
     def _put_in_queue():
