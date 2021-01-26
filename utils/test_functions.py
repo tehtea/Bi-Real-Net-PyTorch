@@ -14,6 +14,9 @@ def test(model, bin_op, testloader, criterion, num_classes):
     # function to be run by the preprocessing daemon
     def _put_in_queue():
         for data, target in testloader:
+            if torch.cuda.is_available():
+                data = data.cuda()
+                target = target.cuda()
             _test_samples_queue.put((data, target))
 
     # start the daemon for processing testing samples

@@ -19,6 +19,9 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes):
     # function to be run by the preprocessing daemon
     def _put_in_queue():
         for batch_idx, (data, target) in enumerate(trainloader):
+            if torch.cuda.is_available():
+                data = data.cuda()
+                target = target.cuda()
             _train_samples_queue.put((batch_idx, (data, target)))
 
     # start the daemon for processing training samples
@@ -34,7 +37,6 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes):
         bin_op.binarization()
         
         # forwarding
-        data, target = Variable(data), Variable(target)
 
         optimizer.zero_grad()
         output = model(data)
