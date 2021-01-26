@@ -4,7 +4,6 @@ import threading, queue
 import torch
 from torch.autograd import Variable
 
-# TODO: parameterize the update list
 def adjust_learning_rate(optimizer, epoch, update_list=[120, 200, 240, 280]):
     if epoch in update_list:
         for param_group in optimizer.param_groups:
