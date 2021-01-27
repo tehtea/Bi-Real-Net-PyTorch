@@ -93,7 +93,7 @@ if __name__ == '__main__':
     testset = torch.utils.data.Subset(
         testset, range(args['batch_size'] * 50))
   # multi-processing for loading dataset not supported for now
-  testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False,\
+  testloader = torch.utils.data.DataLoader(testset, batch_size=args['batch_size'], shuffle=False,\
     num_workers=num_workers)
 
   ## Define and initialize the model
@@ -111,12 +111,12 @@ if __name__ == '__main__':
           logging.error('{} has parameters not in CUDA'.format(name))
         break
 
-  # initialize the model weights
-  for m in model.modules():
-    if isinstance(m, BinaryConv2dKernel):
-      m.weight.data.normal_(0, 0.05)
-      if hasattr(m, 'bias') and m.bias is not None:
-        m.bias.data.zero_()
+  # # initialize the model weights
+  # for m in model.modules():
+  #   if isinstance(m, BinaryConv2dKernel):
+  #     m.weight.data.normal_(0, 0.05)
+  #     if hasattr(m, 'bias') and m.bias is not None:
+  #       m.bias.data.zero_()
 
   ## Define solver and criterion
   optimizer = None
