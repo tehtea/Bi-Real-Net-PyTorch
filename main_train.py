@@ -76,8 +76,6 @@ if __name__ == '__main__':
         trainset, range(args['batch_size'] * 50))
 
   num_workers=max(torch.cuda.device_count() * 2, 2)
-  if sys.platform == 'win32':
-    num_workers = 0
   trainloader = torch.utils.data.DataLoader(trainset,
     batch_size=args['batch_size'],
     shuffle=True,
