@@ -31,7 +31,11 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes):
     num_batches = 0
     while num_batches != len(trainloader):
         # Get train samples from queue
-        batch_idx, (data, target) = _train_samples_queue.get()
+        try:
+            batch_idx, (data, target) = _train_samples_queue.get(timeout=60)
+        except queue.Empty:
+            logging.error('Did not get new train sample within 60 seconds, skipping current epoch')
+            break
 
         # process the weights including binarization
         bin_op.binarization()

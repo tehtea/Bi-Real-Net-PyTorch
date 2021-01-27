@@ -9,13 +9,18 @@ import os
 import sys
 
 # define logger
+
+train_info_file_handler = logging.FileHandler("train.log")
+train_info_file_handler.setLevel(logging.INFO)
+
+train_error_file_handler = logging.FileHandler("train_errors.log")
+train_error_file_handler.setLevel(logging.ERROR)
+
 logging.basicConfig(\
   level=logging.INFO,\
   format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
-  handlers=[
-  logging.FileHandler("train.log"),
-  logging.StreamHandler(sys.stderr)
-])
+  handlers=[train_info_file_handler, train_error_file_handler]\
+)
 
 import torch
 import torch.optim as optim
@@ -124,8 +129,8 @@ if __name__ == '__main__':
   elif args['chosen_optimizer'] == 'adam':
     optimizer = optim.Adam(
         model.parameters(), 
-        lr=args['base_lr'], 
-        weight_decay=0.00001)
+        lr=optimizer_args['base_lr'], 
+        weight_decay=optimizer_args['weight_decay'])
   criterion = nn.CrossEntropyLoss()
 
   ## Define the binarization operator

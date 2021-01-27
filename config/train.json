@@ -6,12 +6,16 @@
       "base_lr": 0.01,
       "momentum": 0.9,
       "weight_decay": 0
+    },
+    "adam": {
+      "base_lr": 0.001,
+      "weight_decay": 0
     }
   },
-  "chosen_optimizer": "sgd",
-  "scheduler_update_list": [10, 15],
-  "max_epoch": 20,
-  "batch_size": 128,
+  "chosen_optimizer": "adam",
+  "scheduler_update_list": [30, 60, 90, 120, 150, 180, 210, 240],
+  "max_epoch": 250,
+  "batch_size": 512,
   "num_classes": 1000,
   "train_log_file": "train.log",
   "debug": false

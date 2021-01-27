@@ -29,7 +29,11 @@ def test(model, bin_op, testloader, criterion, num_classes):
     bin_op.binarization()
     while num_batches != len(testloader):
         # Get test samples from queue
-        data, target = _test_samples_queue.get()
+        try:
+            data, target = _test_samples_queue.get(timeout=60)
+        except queue.Empty:
+            logging.error('Did not get new test sample within 60 seconds, skipping current test')
+            break
 
         data, target = Variable(data), Variable(target)
                                     
