@@ -145,7 +145,7 @@ if __name__ == '__main__':
     current_acc = test(model, bin_op, testloader, criterion, args['num_classes'])
     if current_acc > best_acc:
       best_acc = current_acc
-      torch.save(model, 'checkpoints/best_model_{}.pth'.format(round(best_acc, 1)))
+      torch.save(model, os.path.join('checkpoints', 'best_model_{}.pth'.format(round(best_acc, 1))))
 
   ## Stop training
   logging.info('Training Done. Evaluating final model.')
