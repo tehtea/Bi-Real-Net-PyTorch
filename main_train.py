@@ -148,9 +148,5 @@ if __name__ == '__main__':
       torch.save(model, os.path.join('checkpoints', 'best_model_{}.pth'.format(round(best_acc, 1))))
 
   ## Stop training
-  logging.info('Training Done. Evaluating final model.')
-  save_for_evaluation(model, bin_op)
-  test(model, bin_op, testloader, criterion, args['num_classes'])
-
-  logging.info('Now exporting binarized model to ONNX.')
+  logging.info('Training done, now exporting binarized model to ONNX.')
   export_model_to_onnx(model, bin_op, 'birealnet18-custom.onnx')
