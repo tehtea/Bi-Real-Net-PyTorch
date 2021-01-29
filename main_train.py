@@ -10,10 +10,12 @@ import sys
 
 # define logger
 
-train_info_file_handler = logging.FileHandler("train.log")
+script_start_time = int(time.time())
+
+train_info_file_handler = logging.FileHandler("train-{}.log".format(script_start_time))
 train_info_file_handler.setLevel(logging.INFO)
 
-train_error_file_handler = logging.FileHandler("train_errors.log")
+train_error_file_handler = logging.FileHandler("train_errors-{}.log".format(script_start_time))
 train_error_file_handler.setLevel(logging.ERROR)
 
 logging.basicConfig(\
@@ -31,7 +33,7 @@ from torchvision import transforms
 
 from model import Net
 from binary_classes import BinaryConv2dKernel, BinOp
-from utils.train_functions import adjust_learning_rate, train, save_for_evaluation
+from utils.train_functions import adjust_learning_rate, train, save_for_evaluation, save_checkpoint
 from utils.test_functions import test
 from utils.export_function import export_model_to_onnx
 from utils.configuration_utils import read_from_config
@@ -55,7 +57,10 @@ if __name__ == '__main__':
   if args['debug']:
     logging.info('Running in debug mode')
     args['train_path'] = args['val_path'] # make smaller
-  best_acc = 0
+
+  # Global metrics
+  best_top_1_acc = 0
+  epoch_start = 1
 
   # define seed
   torch.manual_seed(1)
@@ -75,7 +80,7 @@ if __name__ == '__main__':
     trainset = torch.utils.data.Subset(
         trainset, range(args['batch_size'] * 50))
 
-  num_workers=max(torch.cuda.device_count() * 2, 2)
+  num_workers=max(torch.cuda.device_count() * 8, 4)
   trainloader = torch.utils.data.DataLoader(trainset,
     batch_size=args['batch_size'],
     shuffle=True,
@@ -134,18 +139,40 @@ if __name__ == '__main__':
   ## Define the binarization operator
   bin_op = BinOp(model)
 
+  if args.get('resume'):
+    if os.path.isfile(str(args['resume'])):
+      logging.info("=> loading checkpoint '{}'".format(args['resume']))
+      checkpoint = torch.load(os.path.join('checkpoints', args['resume']))
+      epoch_start = checkpoint['epoch']
+      best_top_1_acc = checkpoint['best_top_1_acc']
+      model.load_state_dict(checkpoint['state_dict'])
+      optimizer.load_state_dict(checkpoint['optimizer'])
+      logging.info("=> loaded checkpoint '{}' (epoch {})"
+            .format(args['resume'], checkpoint['epoch']))
+      del checkpoint
+    else:
+      logging.warning("=> no checkpoint found at '{}'".format(args['resume']))
+
   ## Start training
-  best_acc = 0
-  for epoch in range(1, args['max_epoch'] + 1):
+  best_top_1_acc = 0
+  for epoch in range(epoch_start, args['max_epoch'] + 1):
+    
     adjust_learning_rate(optimizer, epoch, args['scheduler_update_list'])
+
     start_time = time.time()
     train(model, bin_op, trainloader, optimizer,
-          criterion, epoch, args['num_classes'])
+          criterion, epoch, args['num_classes'], args['use_binary'])
     logging.info('Time elapsed for epoch: {} min'.format(round((time.time() - start_time) / 60, 2)))
-    current_acc = test(model, bin_op, testloader, criterion, args['num_classes'])
-    if current_acc > best_acc:
-      best_acc = current_acc
-      torch.save(model, os.path.join('checkpoints', 'best_model_{}.pth'.format(round(best_acc, 1))))
+    
+    current_top_1_acc = test(model, bin_op, testloader, criterion, args['num_classes'], args['use_binary'])
+    is_best = current_top_1_acc > best_top_1_acc
+    best_top_1_acc = max(best_top_1_acc, current_top_1_acc)
+    save_checkpoint({
+        'epoch': epoch,
+        'state_dict': model.state_dict(),
+        'best_top_1_acc': best_top_1_acc,
+        'optimizer' : optimizer.state_dict(),
+    }, is_best, script_start_time)
 
   ## Stop training
   logging.info('Training done, now exporting binarized model to ONNX.')

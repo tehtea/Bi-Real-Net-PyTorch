@@ -1,5 +1,9 @@
 # prevent python artefacts from being stored
 __pycache__/
+*.pyc
+
+#.vscode stuff
+.vscode/
 
 # project-specific
 checkpoints/*

@@ -1,5 +1,7 @@
 import logging
 import threading, queue
+import shutil
+import os
 
 import torch
 from torch.autograd import Variable
@@ -10,7 +12,7 @@ def adjust_learning_rate(optimizer, epoch, update_list=[120, 200, 240, 280]):
             param_group['lr'] = param_group['lr'] * 0.1
 
 # Train model for one epoch
-def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes):
+def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, use_binary):
     model.train()
 
     # queue for placing pre-processed training samples in background
@@ -38,7 +40,8 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes):
             break
 
         # process the weights including binarization
-        bin_op.binarization()
+        if use_binary:
+            bin_op.binarization()
         
         # forwarding
 
@@ -51,8 +54,9 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes):
         loss.backward()
         
         # restore weights
-        bin_op.restore()
-        bin_op.updateBinaryGradWeight()
+        if use_binary:
+            bin_op.restore()
+            bin_op.updateBinaryGradWeight()
         
         # Run one step of optimizer
         optimizer.step()
@@ -76,3 +80,8 @@ def save_for_evaluation(model, bin_op):
     bin_op.binarization()
     torch.save(model, 'checkpoints/binarized_model.pb')
     bin_op.restore()
+
+def save_checkpoint(state, is_best, script_start_time, filename='checkpoint.pth.tar'):
+    torch.save(state, os.path.join('checkpoints', '{}-{}'.format(script_start_time, filename)))
+    if is_best:
+        shutil.copyfile(filename, os.path.join('checkpoints', '{}-{}'.format(script_start_time, 'model_best.pth.tar')))

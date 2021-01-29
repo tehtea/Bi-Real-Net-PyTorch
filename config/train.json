@@ -8,15 +8,17 @@
       "weight_decay": 0
     },
     "adam": {
-      "base_lr": 0.001,
+      "base_lr": 0.004,
       "weight_decay": 0
     }
   },
   "chosen_optimizer": "adam",
-  "scheduler_update_list": [30, 60, 90, 120, 150, 180, 210, 240],
+  "scheduler_update_list": [60, 120, 180, 240],
   "max_epoch": 250,
-  "batch_size": 512,
+  "batch_size": 128,
   "num_classes": 1000,
   "train_log_file": "train.log",
-  "debug": false
+  "debug": false,
+  "resume": false,
+  "use_binary": false
 }
