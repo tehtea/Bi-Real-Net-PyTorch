@@ -46,9 +46,9 @@ def test(model, bin_op, testloader, criterion, num_classes, use_binary):
 
         test_loss += criterion(output, target).data.item()
         
-        pred = output.topk(5, dim=1, largest=True, sorted=True)
+        _, pred = output.topk(5, dim=1, largest=True, sorted=True)
         pred = pred.t()
-        correct = pred.eq(target.view(1, -1).expand_as(pred)).cpu().sum()
+        correct = pred.eq(target.view(1, -1).expand_as(pred))
 
         for k in (1, 5):
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
@@ -66,8 +66,10 @@ def test(model, bin_op, testloader, criterion, num_classes, use_binary):
     if use_binary:
         bin_op.restore()
     
-    top_1_acc = 100. * float(top_1_correct) / len(testloader.dataset)
-    top_5_acc = 100. * float(top_5_correct) / len(testloader.dataset)
+    top_1_correct = int(top_1_correct)
+    top_5_correct = int(top_5_correct)
+    top_1_acc = 100. * top_1_correct / len(testloader.dataset)
+    top_5_acc = 100. * top_5_correct / len(testloader.dataset)
     
     test_loss /= len(testloader.dataset)
     logging.info('\nTest set: Average loss: {:.4f}, Top-1 Accuracy: {}/{} ({:.2f}%),\

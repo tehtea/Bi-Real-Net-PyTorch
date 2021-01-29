@@ -82,6 +82,7 @@ def save_for_evaluation(model, bin_op):
     bin_op.restore()
 
 def save_checkpoint(state, is_best, script_start_time, filename='checkpoint.pth.tar'):
-    torch.save(state, os.path.join('checkpoints', '{}-{}'.format(script_start_time, filename)))
+    filename = '{}-{}'.format(script_start_time, filename)
+    torch.save(state, os.path.join('checkpoints', filename))
     if is_best:
-        shutil.copyfile(filename, os.path.join('checkpoints', '{}-{}'.format(script_start_time, 'model_best.pth.tar')))
+        shutil.copyfile(os.path.join('checkpoints', filename), os.path.join('checkpoints', '{}-{}'.format(script_start_time, 'model_best.pth.tar')))
