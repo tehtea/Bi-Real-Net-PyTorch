@@ -141,9 +141,10 @@ if __name__ == '__main__':
   bin_op = BinOp(model)
 
   if args.get('resume'):
-    if os.path.isfile(str(args['resume'])):
+    args['resume'] = os.path.join('checkpoints', str(args['resume']) )
+    if os.path.isfile(args['resume']):
       logging.info("=> loading checkpoint '{}'".format(args['resume']))
-      checkpoint = torch.load(os.path.join('checkpoints', args['resume']))
+      checkpoint = torch.load(args['resume'])
       epoch_start = checkpoint['epoch']
       best_top_1_acc = checkpoint['best_top_1_acc']
       model.load_state_dict(checkpoint['state_dict'])
