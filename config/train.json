@@ -20,5 +20,6 @@
   "train_log_file": "train.log",
   "debug": false,
   "resume": false,
-  "use_binary": false
+  "use_binary": true,
+  "num_workers": 32
 }
