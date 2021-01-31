@@ -33,3 +33,5 @@ Other command line arguments can be found by running `python3 main_train.py --he
 - Binary Network training in PyTorch: https://github.com/jiecaoyu/XNOR-Net-PyTorch
 - daBNN Conv2d implementation in PyTorch: https://gist.github.com/daquexian/7db1e7f1e0a92ab13ac1ad028233a9eb
 - Network model visualization and debugging: https://netron.app/
+- Object Detection based on YOLOv2: https://arxiv.org/abs/1612.08242
+- Lightnet
