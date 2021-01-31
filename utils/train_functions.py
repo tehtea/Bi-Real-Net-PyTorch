@@ -67,7 +67,11 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, 
                 epoch, batch_idx * len(data), len(trainloader.dataset),
                 100. * batch_idx / len(trainloader), loss.data.item(),
                 optimizer.param_groups[0]['lr']))
-        
+
+        # source: https://discuss.pytorch.org/t/best-practices-for-maximum-gpu-utilization/13863/5
+        # clear loss graph after stepping through optimizer and logging progress 
+        del loss
+
         # Inform the queue that a sample has been processed
         _train_samples_queue.task_done()
 

@@ -115,13 +115,6 @@ if __name__ == '__main__':
           logging.error('{} has parameters not in CUDA'.format(name))
         break
 
-  # # initialize the model weights
-  # for m in model.modules():
-  #   if isinstance(m, BinaryConv2dKernel):
-  #     m.weight.data.normal_(0, 0.05)
-  #     if hasattr(m, 'bias') and m.bias is not None:
-  #       m.bias.data.zero_()
-
   ## Define solver and criterion
   optimizer = None
   if args['chosen_optimizer'] == 'sgd':
@@ -142,18 +135,25 @@ if __name__ == '__main__':
 
   if args.get('resume'):
     args['resume'] = os.path.join('checkpoints', str(args['resume']) )
-    if os.path.isfile(args['resume']):
-      logging.info("=> loading checkpoint '{}'".format(args['resume']))
-      checkpoint = torch.load(args['resume'])
-      epoch_start = checkpoint['epoch']
-      best_top_1_acc = checkpoint['best_top_1_acc']
-      model.load_state_dict(checkpoint['state_dict'])
-      optimizer.load_state_dict(checkpoint['optimizer'])
-      logging.info("=> loaded checkpoint '{}' (epoch {})"
-            .format(args['resume'], checkpoint['epoch']))
-      del checkpoint
-    else:
-      logging.warning("=> no checkpoint found at '{}'".format(args['resume']))
+
+  # initialize weights for binary layers if not resuming from somewhere
+  if not args.get('resume') or not os.path.isfile(args['resume']):
+    logging.info('Initializing weights from scratch')
+    for name, module in model.named_modules():
+      if isinstance(module, BinaryConv2dKernel):
+        module.weight.data.uniform_(-0.0005, 0.0005)
+        if hasattr(module, 'bias') and module.bias is not None:
+          module.bias.data.zero_()
+  else:
+    logging.info("=> loading checkpoint '{}'".format(args['resume']))
+    checkpoint = torch.load(args['resume'])
+    epoch_start = checkpoint['epoch']
+    best_top_1_acc = checkpoint['best_top_1_acc']
+    model.load_state_dict(checkpoint['state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer'])
+    logging.info("=> loaded checkpoint '{}' (epoch {})"
+          .format(args['resume'], checkpoint['epoch']))
+    del checkpoint
 
   ## Start training
   best_top_1_acc = 0
