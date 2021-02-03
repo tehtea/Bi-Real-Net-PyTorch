@@ -13,7 +13,7 @@
     }
   },
   "chosen_optimizer": "adam",
-  "scheduler_update_list": [45, 90, 135, 180, 225],
+  "scheduler_update_list": [30, 60, 90, 120, 150, 180, 210, 240],
   "max_epoch": 250,
   "batch_size": 256,
   "num_classes": 1000,

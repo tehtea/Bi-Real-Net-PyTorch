@@ -31,6 +31,7 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, 
     producer.start()
 
     num_batches = 0
+    total_loss = 0
     while num_batches != len(trainloader):
         # Get train samples from queue
         try:
@@ -61,6 +62,9 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, 
         # Run one step of optimizer
         optimizer.step()
 
+        # accumulate loss
+        total_loss += loss.data.item()
+
         # log progress every 100 batches
         if batch_idx % 100 == 0:
             logging.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tLR: {}'.format(
@@ -77,7 +81,8 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, 
 
         # [DEBUGGING] add counter for number of batches processed
         num_batches += 1
-    logging.info('Number of batches processed in epoch: {}'.format(num_batches))
+    average_loss = round(total_loss / len(trainloader.dataset) * 100, 2)
+    logging.info('Number of batches processed in epoch: {}, average loss: {}'.format(num_batches, average_loss))
 
 def save_for_evaluation(model, bin_op):
     model.eval()
