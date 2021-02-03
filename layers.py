@@ -5,7 +5,7 @@ from binary_classes import BinaryConv2dKernel, BinActive
 
 class Conv2dBatch(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride, padding,
-                 momentum=0.1, eps=1e-4, affine=False):
+                 momentum=0.1, eps=1e-4, affine=True):
         super().__init__()
 
         # Parameters
