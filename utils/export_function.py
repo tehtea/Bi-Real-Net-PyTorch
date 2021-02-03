@@ -5,8 +5,8 @@ import torch
 from model import Net
 from torch import nn
 
-def export_model_to_onnx(model, bin_op, output_model_name):
-    sample_input = torch.rand((1, 3, 224, 224))
+def export_model_to_onnx(model, bin_op, output_model_name, sample_input_size=((1, 3, 224, 224))):
+    sample_input = torch.rand(sample_input_size)
     output_path = os.path.join('checkpoints', output_model_name)
 
     bin_op.binarization()

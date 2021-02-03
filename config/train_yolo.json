@@ -1,0 +1,22 @@
+{
+  "coco_root_dir": "D:/FYPCode/COCO2017",
+  "optimizers": {
+    "sgd": {
+      "base_lr": 0.01,
+      "momentum": 0.9,
+      "weight_decay": 0
+    },
+    "adam": {
+      "base_lr": 0.004,
+      "weight_decay": 0.00001
+    }
+  },
+  "chosen_optimizer": "adam",
+  "scheduler_update_list": [60, 90],
+  "max_epoch": 160,
+  "batch_size": 8,
+  "debug": true,
+  "resume": "1612113646-checkpoint-object-detection.pth.tar",
+  "use_binary": true,
+  "num_workers": 2
+}
