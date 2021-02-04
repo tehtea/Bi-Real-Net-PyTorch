@@ -84,8 +84,8 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, 
 
         # [DEBUGGING] add counter for number of batches processed
         num_batches += 1
-    average_loss = round(total_loss / len(trainloader.dataset) * 100, 2)
-    logging.info('Number of batches processed in epoch: {}, average loss: {}'.format(num_batches, average_loss))
+    average_loss = total_loss / len(trainloader.dataset)
+    logging.info('Number of batches processed in epoch: {}, average loss: {:.4f}'.format(num_batches, average_loss))
 
     return progress_one_epoch
     

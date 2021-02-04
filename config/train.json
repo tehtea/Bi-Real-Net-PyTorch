@@ -17,9 +17,9 @@
   "max_epoch": 250,
   "batch_size": 256,
   "num_classes": 1000,
-  "train_log_file": "train.log",
   "debug": false,
   "resume": false,
   "use_binary": true,
+  "use_bireal_binactive": true,
   "num_workers": 32
 }

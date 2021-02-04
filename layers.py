@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from binary_classes import BinaryConv2dKernel, BinActive
+from binary_classes import BinActive, BinActiveBiReal, BinaryConv2dKernel
+from config import args
 
 class Conv2dBatch(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride, padding,
@@ -48,10 +49,14 @@ class BinConv2d(nn.Module):
         self.bn = nn.BatchNorm2d(
             output_channels, eps=eps, momentum=momentum, affine=True)
         self.bn.weight.data = self.bn.weight.data.zero_().add(1.0)
+        if args['use_bireal_binactive']:
+          self.binActiveBiReal = BinActiveBiReal()
 
     def forward(self, x):
-        if self.training:
+        if self.training and not args['use_bireal_binactive']:
           x, mean = BinActive.apply(x)
+        elif self.training and args['use_bireal_binactive']:
+          x = self.binActiveBiReal(x)
         else:
           # We clone x here because it causes unexpected behaviors
           # to edit the data of `x` tensor.
