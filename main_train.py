@@ -13,16 +13,13 @@ import sys
 script_start_time = int(time.time())
 
 if __name__ == '__main__':
-  train_info_file_handler = logging.FileHandler("train-{}.log".format(script_start_time))
-  train_info_file_handler.setLevel(logging.INFO)
-
-  train_error_file_handler = logging.FileHandler("train_errors-{}.log".format(script_start_time))
-  train_error_file_handler.setLevel(logging.ERROR)
+  log_file_handler = logging.FileHandler("train-{}.log".format(script_start_time))
+  log_file_handler.setLevel(logging.DEBUG)
 
   logging.basicConfig(\
     level=logging.INFO,\
     format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
-    handlers=[train_info_file_handler, train_error_file_handler]\
+    handlers=[log_file_handler]\
   )
 
 import torch

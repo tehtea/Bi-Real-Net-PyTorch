@@ -78,8 +78,6 @@ class BinOp():
 
     def _binarizeConvParams(self):
         for index in range(self.num_of_params):
-            n = self.target_modules[index].data[0].nelement()
-            s = self.target_modules[index].data.size()
             self.target_modules[index].data = self.target_modules[index].data.sign(
             )
 
