@@ -15,6 +15,8 @@ def adjust_learning_rate(optimizer, epoch, update_list=[120, 200, 240, 280]):
 def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, use_binary):
     model.train()
 
+    progress_one_epoch = True
+
     # queue for placing pre-processed training samples in background
     _train_samples_queue = queue.Queue(maxsize=max(torch.cuda.device_count() * 4, 4))
 
@@ -38,6 +40,7 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, 
             batch_idx, (data, target) = _train_samples_queue.get(timeout=60)
         except queue.Empty:
             logging.error('Did not get new train sample within 60 seconds, skipping current epoch')
+            progress_one_epoch = False
             break
 
         # process the weights including binarization
@@ -84,6 +87,8 @@ def train(model, bin_op, trainloader, optimizer, criterion, epoch, num_classes, 
     average_loss = round(total_loss / len(trainloader.dataset) * 100, 2)
     logging.info('Number of batches processed in epoch: {}, average loss: {}'.format(num_batches, average_loss))
 
+    return progress_one_epoch
+    
 # Train object detection model for one epoch
 def train_object_detection(model, bin_op, trainloader, optimizer, criterion, epoch, use_binary):
     # set model to training mode

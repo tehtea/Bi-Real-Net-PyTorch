@@ -157,24 +157,28 @@ if __name__ == '__main__':
 
   ## Start training
   best_top_1_acc = 0
-  for epoch in range(epoch_start, args['max_epoch'] + 1):
-    
-    adjust_learning_rate(optimizer, epoch, args['scheduler_update_list'])
+  current_epoch = epoch_start
+  while current_epoch < args['max_epoch'] + 1:
+    adjust_learning_rate(optimizer, current_epoch, args['scheduler_update_list'])
 
     start_time = time.time()
-    train(model, bin_op, trainloader, optimizer,
-          criterion, epoch, args['num_classes'], args['use_binary'])
+    progress_one_epoch = train(model, bin_op, trainloader, optimizer,
+          criterion, current_epoch, args['num_classes'], args['use_binary'])
+    if (not progress_one_epoch):
+      continue
     logging.info('Time elapsed for epoch: {} min'.format(round((time.time() - start_time) / 60, 2)))
     
     current_top_1_acc = test(model, bin_op, testloader, criterion, args['num_classes'], args['use_binary'])
     is_best = current_top_1_acc > best_top_1_acc
     best_top_1_acc = max(best_top_1_acc, current_top_1_acc)
     save_checkpoint({
-        'epoch': epoch,
+        'epoch': current_epoch,
         'state_dict': model.state_dict(),
         'best_top_1_acc': best_top_1_acc,
         'optimizer' : optimizer.state_dict(),
     }, is_best, script_start_time)
+
+    current_epoch += 1
 
   ## Stop training
   logging.info('Training done, now exporting binarized model to ONNX.')
